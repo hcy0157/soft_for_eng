@@ -10,7 +10,7 @@ int get_command() {
 	scanf("%d", &cmd) ;
 	return cmd ;
 }
-
+//change test
 int main ()
 {
 	
