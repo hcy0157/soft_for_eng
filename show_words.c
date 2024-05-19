@@ -9,6 +9,7 @@ void command(char *wordbook){
 	printf("3. Exit\n");
 	printf("\n") ;
 	printf(">") ;
+	
 }
 
 void add_words(char *filepath, FILE *fp, char *wordbook){
