@@ -3,32 +3,57 @@
 #include <stdlib.h>
 #include "wordquiz.h"
 
+// Declare the read_a_line function
+
+
 void command(char *wordbook){
 	printf("1. Add other words in %s\n", wordbook);
 	printf("2. Edit words in %s\n", wordbook);
 	printf("3. Exit\n");
 	printf("\n") ;
 	printf(">") ;
-	
+
 }
 
 void add_words(char *filepath, FILE *fp, char *wordbook){
 	
+
+	char meaning[40]; 
+	char words[20];
+	int count = 0;
+	fp = freopen(filepath, "r", fp); 
+	do{	
+		printf("Input words : ");
+		scanf("%s", words);
+		printf("Input its meaning : ");
+		scanf(" %[^\n]", meaning);
+
+		count = 0;
+		char * line ;
+		while (line = read_a_line(fp)) {
+			printf("count : %d\n", count);
+			char * f_word = strtok(line, "\"") ;
+			strtok(NULL, "\"") ;
+			strtok(NULL, "\"") ;
+			printf("%s", f_word);
+			if(strcmp(f_word, words) == 0){
+				count++;
+				printf("There is a same word\n\n");
+			}
+
+			free(line);
+		}
+		
+	}while(count != 0);
+
+
 	fp = freopen(filepath, "a+", fp);
 	if (fp == NULL) {
 		printf("Failed to open file\n");
 		return;
 	}
-
-	char meaning[40]; 
-	char words[20];
 	
-	printf("Input words : ");
-	scanf("%s", words);
-	printf("Input its meaning : ");
-	scanf(" %[^\n]", meaning);
-	
-	fprintf(fp, "%s\" \"%s\n", words, meaning);
+	fprintf(fp, "\"%s\" \"%s\"\n", words, meaning);
 }
 
 void edit_words(FILE *fp, char *wordbook){
