@@ -4,7 +4,8 @@
 #include "wordquiz.h"
 
 // Declare the read_a_line function
-
+const int word_size = 32;
+const int meaning_size = 64;
 
 void command(char *wordbook){
 	printf("1. Add other words in %s\n", wordbook);
@@ -18,10 +19,16 @@ void command(char *wordbook){
 void add_words(char *filepath, FILE *fp, char *wordbook){
 	
 
-	char meaning[40]; 
-	char words[20];
+	char meaning[meaning_size]; 
+	char words[word_size];
 	int count = 0;
+
 	fp = freopen(filepath, "r", fp); 
+	if (fp == NULL) {
+		printf("Failed to open file\n");
+		return;
+	}
+
 	do{	
 		printf("Input words : ");
 		scanf("%s", words);
@@ -56,8 +63,71 @@ void add_words(char *filepath, FILE *fp, char *wordbook){
 	fprintf(fp, "\"%s\" \"%s\"\n", words, meaning);
 }
 
-void edit_words(FILE *fp, char *wordbook){
-	printf("this is edit words\n");
+void edit_words(const char *filepath, FILE *fp) {
+    fp = freopen(filepath, "r+", fp);
+	FILE *tempFile = fopen("wordbooks/temp", "w");
+    if (fp == NULL) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+	char f_word[word_size];
+    
+	printf("Enter the word to edit : ");
+	scanf("%s", f_word);
+	
+	int find = 0;
+	char * line ;
+	while (line = read_a_line(fp)) {
+		char * word = strtok(line, "\"") ;
+		strtok(NULL, "\"") ;
+		char * meaning = strtok(NULL, "\"") ;
+
+		
+		if(strcmp(word, f_word) == 0){
+			
+			char new_word[word_size];
+			char new_meaning[meaning_size];
+
+			printf("Enter the new word : ");
+			scanf("%s", new_word);
+			printf("Enter the new meaning : ");
+			scanf(" %[^\n]", new_meaning);
+
+			char buffer[256];
+			char current_word[128];
+			fseek(fp, 0, SEEK_SET);
+			while (fgets(buffer, sizeof(buffer), fp)) {
+				sscanf(buffer, "\"%127s[^\"]", current_word);
+				if(strncmp(current_word,word,sizeof(word)-1) == 0){
+					fprintf(tempFile, "\"%s\" \"%s\"\n", new_word, new_meaning);
+				}
+				else{
+					fputs(buffer, tempFile);
+				}
+			}
+			
+			find++;
+		}
+		
+		free(line);
+	}
+    
+
+    if (!find) {
+        printf("Word not found.\n");
+		fclose(fp);
+		fclose(tempFile);
+    }
+	else{
+		fclose(tempFile);
+		fclose(fp);
+		printf("%s\n", filepath);
+		remove(filepath);
+		rename("wordbooks/temp", filepath);
+		printf("Word edited successfully.\n");
+
+	}  
+
 }
 
 void show_words ()
@@ -72,7 +142,7 @@ void show_words ()
 	scanf("%s", wordbook) ;
 
 	sprintf(filepath, "wordbooks/%s", wordbook) ;
-
+	printf("file : %s\n", filepath);
 	FILE * fp = fopen(filepath, "r") ;
 
 	printf("\n  -----\n") ;
@@ -98,7 +168,7 @@ void show_words ()
 				break;
 			}
 			case 2:{
-				edit_words(fp, wordbook);
+				edit_words(filepath, fp);
 				break;
 			}
 			case 3: {
