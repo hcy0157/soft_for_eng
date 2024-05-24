@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "wordquiz.h"
+typedef struct {
+    char *word;
+    char *meaning;
+} Word;
 
 char *strdup(const char *s) {
     size_t size = strlen(s) + 1;
